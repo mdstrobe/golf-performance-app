@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+// import Link from 'next/link';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -56,7 +56,7 @@ export default function WelcomePage() {
                 </div>
                 <h3 className="text-xl font-semibold text-green-800 mb-4">Request Access</h3>
                 <p className="text-gray-600">
-                  Join our private beta by requesting access. We'll review your request and get you started on your golf journey.
+                  Join our private beta by requesting access. We will review your request and get you started on your golf journey.
                 </p>
               </div>
 
