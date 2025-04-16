@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { AuthError } from '@supabase/supabase-js';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -22,8 +23,12 @@ export default function ForgotPasswordPage() {
 
       if (error) throw error;
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      if (err instanceof AuthError) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }
