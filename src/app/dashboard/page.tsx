@@ -52,6 +52,11 @@ interface HoleAnalysis {
   };
 }
 
+interface Persona {
+  persona_name: string;
+  description: string;
+}
+
 interface ExpandedInsights {
   [key: number]: boolean;
 }
@@ -71,9 +76,9 @@ export default function DashboardPage() {
     worstScore: 0,
     scoreTrend: []
   });
-  const [persona, setPersona] = useState<any>(null);
+  const [persona, setPersona] = useState<Persona | null>(null);
   const [aiInsights, setAiInsights] = useState<Insight[] | null>(null);
-  const [holeAnalysis, setHoleAnalysis] = useState<HoleAnalysis | null>(null);
+  // const [holeAnalysis, setHoleAnalysis] = useState<HoleAnalysis | null>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [expandedInsights, setExpandedInsights] = useState<ExpandedInsights>({});
   const [editingRound, setEditingRound] = useState<Round | null>(null);
@@ -191,16 +196,6 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      router.push('/login');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-
   const toggleInsight = (index: number) => {
     setExpandedInsights(prev => ({
       ...prev,
@@ -294,7 +289,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Average Score:</span>
-                <span className="font-semibold text-green-800">{stats.averageScore || 'N/A'}</span>
+                <span className="font-semibold text-green-800">{stats.averageScore}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Rounds Played:</span>
@@ -399,14 +394,6 @@ export default function DashboardPage() {
                   <h3 className="font-semibold text-green-800">{persona.persona_name}</h3>
                   <p className="text-gray-600 mt-2">{persona.description}</p>
                 </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-green-800">Strengths</h4>
-                  <p className="text-gray-600">{persona.strengths}</p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-green-800">Areas for Improvement</h4>
-                  <p className="text-gray-600">{persona.weaknesses}</p>
-                </div>
               </div>
             ) : (
               <p className="text-gray-500">Play more rounds to generate your golfer persona</p>
@@ -487,39 +474,6 @@ export default function DashboardPage() {
                 <p className="text-gray-500 text-center py-8">No insights available yet. Submit more rounds to get personalized recommendations.</p>
               )}
             </div>
-
-            {/* Hole-by-Hole Analysis */}
-            {holeAnalysis && (
-              <div className="mt-8">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Latest Round Analysis</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h4 className="text-lg font-medium text-green-800 mb-2">Strengths</h4>
-                    <ul className="list-disc list-inside space-y-1">
-                      {holeAnalysis.analysis.strengths.map((strength, index) => (
-                        <li key={index} className="text-green-700">{strength}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="bg-red-50 p-4 rounded-lg">
-                    <h4 className="text-lg font-medium text-red-800 mb-2">Areas for Improvement</h4>
-                    <ul className="list-disc list-inside space-y-1">
-                      {holeAnalysis.analysis.weaknesses.map((weakness, index) => (
-                        <li key={index} className="text-red-700">{weakness}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="md:col-span-2 bg-gray-50 p-4 rounded-lg">
-                    <h4 className="text-lg font-medium text-gray-800 mb-2">Recommendations</h4>
-                    <ul className="list-disc list-inside space-y-1">
-                      {holeAnalysis.analysis.recommendations.map((rec, index) => (
-                        <li key={index} className="text-gray-700">{rec}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </main>
