@@ -28,8 +28,8 @@ export default function LoginPage() {
       } else {
         setError('Failed to establish a session. Please try again.');
       }
-    } catch (err: any) {
-      setError('An unexpected error occurred: ' + err.message);
+    } catch {
+      setError('An unexpected error occurred: ');
     }
   };
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
           </form>
           <div className="mt-4 text-center space-y-2">
             <p>
-              Don't have an account?{' '}
+              Need an account?{' '}
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}

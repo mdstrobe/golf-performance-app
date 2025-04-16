@@ -1,4 +1,11 @@
-export async function analyzeHoleByHolePerformance(holeData: any) {
+interface HoleData {
+  strokes: number;
+  putts: number;
+  fairway: string;
+  green: string;
+}
+
+export async function analyzeHoleByHolePerformance(holeData: HoleData[]) {
   try {
     const response = await fetch('/api/insights', {
       method: 'POST',

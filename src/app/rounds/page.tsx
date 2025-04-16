@@ -18,7 +18,6 @@ const TEE_POSITIONS = [
 const SUBMISSION_TYPES = [
   { value: 'basic', label: 'Basic Round' },
   { value: 'hole-by-hole', label: 'Hole by Hole' },
-  { value: 'scorecard', label: 'Scorecard Image' },
 ];
 
 export default function RoundsPage() {
@@ -45,10 +44,6 @@ export default function RoundsPage() {
     green: '',
     notes: ''
   }));
-
-  // Scorecard image state
-  const [scorecardImage, setScorecardImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -188,36 +183,6 @@ export default function RoundsPage() {
     }
   };
 
-  const handleScorecardImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setScorecardImage(file);
-      setImagePreview(URL.createObjectURL(file));
-      setLoading(true);
-
-      try {
-        // Here you would implement the AI scorecard reading logic
-        // For now, we'll just show a loading state
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Simulated AI results
-        setCourseName('Sample Golf Course');
-        setScore('85');
-        setFairwaysHit('8');
-        setGreensInRegulation('6');
-        setPutts('32');
-        setRoundDate(new Date().toISOString().split('T')[0]);
-        setTeePosition('middle');
-        
-        setSuccess('Scorecard processed successfully! Review the data below and submit if correct.');
-      } catch (error) {
-        setError('Failed to process scorecard image. Please try again or use manual entry.');
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
   const renderBasicForm = () => (
     <form onSubmit={handleBasicSubmit} className="space-y-4">
       <div className="relative">
@@ -248,14 +213,74 @@ export default function RoundsPage() {
                   setShowSuggestions(false);
                 }}
               >
-                <div className="font-medium">{course.name}</div>
-                <div className="text-sm text-gray-500">{course.city}, {course.state}</div>
+                {course.name} - {course.city}, {course.state}
               </div>
             ))}
           </div>
         )}
       </div>
-
+      <div>
+        <label htmlFor="score" className="block text-sm font-medium text-gray-700">
+          Score
+        </label>
+        <input
+          type="number"
+          id="score"
+          value={score}
+          onChange={(e) => setScore(e.target.value)}
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="fairwaysHit" className="block text-sm font-medium text-gray-700">
+          Fairways Hit
+        </label>
+        <input
+          type="number"
+          id="fairwaysHit"
+          value={fairwaysHit}
+          onChange={(e) => setFairwaysHit(e.target.value)}
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+      </div>
+      <div>
+        <label htmlFor="greensInRegulation" className="block text-sm font-medium text-gray-700">
+          Greens in Regulation
+        </label>
+        <input
+          type="number"
+          id="greensInRegulation"
+          value={greensInRegulation}
+          onChange={(e) => setGreensInRegulation(e.target.value)}
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+      </div>
+      <div>
+        <label htmlFor="putts" className="block text-sm font-medium text-gray-700">
+          Putts
+        </label>
+        <input
+          type="number"
+          id="putts"
+          value={putts}
+          onChange={(e) => setPutts(e.target.value)}
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+      </div>
+      <div>
+        <label htmlFor="roundDate" className="block text-sm font-medium text-gray-700">
+          Round Date
+        </label>
+        <input
+          type="date"
+          id="roundDate"
+          value={roundDate}
+          onChange={(e) => setRoundDate(e.target.value)}
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          required
+        />
+      </div>
       <div>
         <label htmlFor="teePosition" className="block text-sm font-medium text-gray-700">
           Tee Position
@@ -274,81 +299,12 @@ export default function RoundsPage() {
           ))}
         </select>
       </div>
-
-      <div>
-        <label htmlFor="score" className="block text-sm font-medium text-gray-700">
-          Score
-        </label>
-        <input
-          type="number"
-          id="score"
-          value={score}
-          onChange={(e) => setScore(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-          required
-        />
-      </div>
-
-      <div>
-        <label htmlFor="fairwaysHit" className="block text-sm font-medium text-gray-700">
-          Fairways Hit (Optional)
-        </label>
-        <input
-          type="number"
-          id="fairwaysHit"
-          value={fairwaysHit}
-          onChange={(e) => setFairwaysHit(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="greensInRegulation" className="block text-sm font-medium text-gray-700">
-          Greens in Regulation (Optional)
-        </label>
-        <input
-          type="number"
-          id="greensInRegulation"
-          value={greensInRegulation}
-          onChange={(e) => setGreensInRegulation(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="putts" className="block text-sm font-medium text-gray-700">
-          Putts (Optional)
-        </label>
-        <input
-          type="number"
-          id="putts"
-          value={putts}
-          onChange={(e) => setPutts(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="roundDate" className="block text-sm font-medium text-gray-700">
-          Round Date
-        </label>
-        <input
-          type="date"
-          id="roundDate"
-          value={roundDate}
-          onChange={(e) => setRoundDate(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-          required
-        />
-      </div>
-
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      {success && <p className="text-green-600 text-sm">{success}</p>}
-
+      {success && <p className="text-green-500 text-sm">{success}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400"
+        className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
       >
         {loading ? 'Submitting...' : 'Submit Round'}
       </button>
@@ -385,14 +341,25 @@ export default function RoundsPage() {
                   setShowSuggestions(false);
                 }}
               >
-                <div className="font-medium">{course.name}</div>
-                <div className="text-sm text-gray-500">{course.city}, {course.state}</div>
+                {course.name} - {course.city}, {course.state}
               </div>
             ))}
           </div>
         )}
       </div>
-
+      <div>
+        <label htmlFor="roundDate" className="block text-sm font-medium text-gray-700">
+          Round Date
+        </label>
+        <input
+          type="date"
+          id="roundDate"
+          value={roundDate}
+          onChange={(e) => setRoundDate(e.target.value)}
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          required
+        />
+      </div>
       <div>
         <label htmlFor="teePosition" className="block text-sm font-medium text-gray-700">
           Tee Position
@@ -411,250 +378,121 @@ export default function RoundsPage() {
           ))}
         </select>
       </div>
-
-      <div>
-        <label htmlFor="roundDate" className="block text-sm font-medium text-gray-700">
-          Round Date
-        </label>
-        <input
-          type="date"
-          id="roundDate"
-          value={roundDate}
-          onChange={(e) => setRoundDate(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-          required
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {holes.map((hole, index) => (
+          <div key={index} className="border p-4 rounded-md">
+            <h3 className="font-medium mb-2">Hole {index + 1}</h3>
+            <div className="space-y-2">
+              <div>
+                <label className="block text-sm text-gray-600">Strokes</label>
+                <input
+                  type="number"
+                  value={hole.strokes}
+                  onChange={(e) => {
+                    const newHoles = [...holes];
+                    newHoles[index] = { ...newHoles[index], strokes: e.target.value };
+                    setHoles(newHoles);
+                  }}
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">Putts</label>
+                <input
+                  type="number"
+                  value={hole.putts}
+                  onChange={(e) => {
+                    const newHoles = [...holes];
+                    newHoles[index] = { ...newHoles[index], putts: e.target.value };
+                    setHoles(newHoles);
+                  }}
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">Fairway</label>
+                <select
+                  value={hole.fairway}
+                  onChange={(e) => {
+                    const newHoles = [...holes];
+                    newHoles[index] = { ...newHoles[index], fairway: e.target.value };
+                    setHoles(newHoles);
+                  }}
+                  className="w-full p-2 border rounded-md"
+                >
+                  <option value="">Select</option>
+                  <option value="hit">Hit</option>
+                  <option value="miss">Miss</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">Green</label>
+                <select
+                  value={hole.green}
+                  onChange={(e) => {
+                    const newHoles = [...holes];
+                    newHoles[index] = { ...newHoles[index], green: e.target.value };
+                    setHoles(newHoles);
+                  }}
+                  className="w-full p-2 border rounded-md"
+                >
+                  <option value="">Select</option>
+                  <option value="hit">Hit</option>
+                  <option value="miss">Miss</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">Notes</label>
+                <input
+                  type="text"
+                  value={hole.notes}
+                  onChange={(e) => {
+                    const newHoles = [...holes];
+                    newHoles[index] = { ...newHoles[index], notes: e.target.value };
+                    setHoles(newHoles);
+                  }}
+                  className="w-full p-2 border rounded-md"
+                  placeholder="Optional notes..."
+                />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hole</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strokes</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Putts</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fairway</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GIR</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {holes.map((hole, index) => (
-              <tr key={index}>
-                <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <input
-                    type="number"
-                    value={hole.strokes}
-                    onChange={(e) => {
-                      const newHoles = [...holes];
-                      newHoles[index] = { ...hole, strokes: e.target.value };
-                      setHoles(newHoles);
-                    }}
-                    className="p-1 border rounded w-16"
-                  />
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <input
-                    type="number"
-                    value={hole.putts}
-                    onChange={(e) => {
-                      const newHoles = [...holes];
-                      newHoles[index] = { ...hole, putts: e.target.value };
-                      setHoles(newHoles);
-                    }}
-                    className="p-1 border rounded w-16"
-                  />
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <select
-                    value={hole.fairway}
-                    onChange={(e) => {
-                      const newHoles = [...holes];
-                      newHoles[index] = { ...hole, fairway: e.target.value };
-                      setHoles(newHoles);
-                    }}
-                    className="p-1 border rounded w-20"
-                  >
-                    <option value="">-</option>
-                    <option value="hit">Hit</option>
-                    <option value="miss">Miss</option>
-                  </select>
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <select
-                    value={hole.green}
-                    onChange={(e) => {
-                      const newHoles = [...holes];
-                      newHoles[index] = { ...hole, green: e.target.value };
-                      setHoles(newHoles);
-                    }}
-                    className="p-1 border rounded w-20"
-                  >
-                    <option value="">-</option>
-                    <option value="hit">Hit</option>
-                    <option value="miss">Miss</option>
-                  </select>
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <input
-                    type="text"
-                    value={hole.notes}
-                    onChange={(e) => {
-                      const newHoles = [...holes];
-                      newHoles[index] = { ...hole, notes: e.target.value };
-                      setHoles(newHoles);
-                    }}
-                    className="p-1 border rounded w-32"
-                    placeholder="Notes"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      {success && <p className="text-green-600 text-sm">{success}</p>}
-
+      {success && <p className="text-green-500 text-sm">{success}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400"
+        className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
       >
         {loading ? 'Submitting...' : 'Submit Round'}
       </button>
     </form>
   );
 
-  const renderScorecardUpload = () => (
-    <div className="space-y-4">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleScorecardImage}
-          className="hidden"
-          id="scorecard-upload"
-        />
-        <label
-          htmlFor="scorecard-upload"
-          className="cursor-pointer"
-        >
-          {imagePreview ? (
-            <div className="space-y-2">
-              <img
-                src={imagePreview}
-                alt="Scorecard preview"
-                className="max-h-64 mx-auto"
-              />
-              <p className="text-sm text-gray-500">Click to change image</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                stroke="currentColor"
-                fill="none"
-                viewBox="0 0 48 48"
-              >
-                <path
-                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <p className="text-sm text-gray-500">
-                Click to upload a photo of your scorecard
-              </p>
-            </div>
-          )}
-        </label>
-      </div>
-
-      {loading && (
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-gray-500">Processing scorecard...</p>
-        </div>
-      )}
-
-      {success && (
-        <div className="space-y-4">
-          <p className="text-green-600 text-sm">{success}</p>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Detected Round Data</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-500">Course</p>
-                <p className="font-medium">{courseName}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Score</p>
-                <p className="font-medium">{score}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Fairways Hit</p>
-                <p className="font-medium">{fairwaysHit}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Greens in Regulation</p>
-                <p className="font-medium">{greensInRegulation}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Putts</p>
-                <p className="font-medium">{putts}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Date</p>
-                <p className="font-medium">{roundDate}</p>
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={handleBasicSubmit}
-            disabled={loading}
-            className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400"
-          >
-            {loading ? 'Submitting...' : 'Submit Round'}
-          </button>
-        </div>
-      )}
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
-  );
-
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-grow flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl">
-          <h1 className="text-2xl font-bold mb-6 text-center text-green-800">Log a Golf Round</h1>
-          
-          <div className="mb-6">
-            <div className="flex space-x-4 justify-center">
-              {SUBMISSION_TYPES.map((type) => (
-                <button
-                  key={type.value}
-                  onClick={() => setSubmissionType(type.value)}
-                  className={`px-4 py-2 rounded-md transition-colors ${
-                    submissionType === type.value
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {type.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {submissionType === 'basic' && renderBasicForm()}
-          {submissionType === 'hole-by-hole' && renderHoleByHoleForm()}
-          {submissionType === 'scorecard' && renderScorecardUpload()}
+    <div className="min-h-screen bg-gray-100 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <h1 className="text-2xl font-bold mb-6">Record a Round</h1>
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Submission Type
+          </label>
+          <select
+            value={submissionType}
+            onChange={(e) => setSubmissionType(e.target.value)}
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            {SUBMISSION_TYPES.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
         </div>
+        {submissionType === 'basic' && renderBasicForm()}
+        {submissionType === 'hole-by-hole' && renderHoleByHoleForm()}
       </div>
     </div>
   );
