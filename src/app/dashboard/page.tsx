@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import { generatePersona } from '@/lib/persona';
 import GolfBag from '@/components/GolfBag';
-import { generateGolfInsights, analyzeHoleByHolePerformance } from '@/lib/openai';
+import { analyzeHoleByHolePerformance } from '@/lib/openai';
 
 interface Round {
   id: string;
