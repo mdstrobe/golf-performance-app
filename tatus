@@ -1,0 +1,5 @@
+[33mcommit 575bd9275d5155c24494c7ca67ef00d2b3d7ff84[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: mdstrobe <mdstrobe@gmail.com>
+Date:   Wed Apr 16 16:50:01 2025 -0400
+
+    Initial commit: Golf performance app with Supabase and Gemini integration
