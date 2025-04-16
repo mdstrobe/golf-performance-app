@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { PostgrestError } from '@supabase/supabase-js';
 
 interface BetaRequestModalProps {
   isOpen: boolean;
@@ -30,9 +31,13 @@ export default function BetaRequestModal({ isOpen, onClose }: BetaRequestModalPr
       console.log('Successfully inserted beta request:', data);
       setRequestSent(true);
       setEmail('');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Unexpected error in handleSubmit:', err);
-      setError(`An unexpected error occurred: ${err.message}`);
+      if (err instanceof Error) {
+        setError(`An unexpected error occurred: ${err.message}`);
+      } else {
+        setError('An unexpected error occurred');
+      }
     }
   };
 
@@ -56,7 +61,7 @@ export default function BetaRequestModal({ isOpen, onClose }: BetaRequestModalPr
         {requestSent ? (
           <div className="text-center py-4">
             <p className="text-green-600 mb-4">
-              Thank you for your interest! We'll review your request and get back to you soon.
+              Thank you for your interest! We&apos;ll review your request and get back to you soon.
             </p>
             <button
               onClick={onClose}

@@ -51,18 +51,17 @@ export async function generateGolfInsights(rounds: GolfRound[], stats: GolfStats
       throw new Error('Failed to generate insights');
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data.insights;
   } catch (error) {
-    console.error('Error generating golf insights:', error);
-    return null;
+    console.error('Error generating insights:', error);
+    throw error;
   }
 }
 
 export async function analyzeHoleByHolePerformance(holeData: GolfRound['hole_by_hole_data']) {
-  if (!holeData) return null;
-
   try {
-    const response = await fetch('/api/analysis', {
+    const response = await fetch('/api/insights', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -71,12 +70,13 @@ export async function analyzeHoleByHolePerformance(holeData: GolfRound['hole_by_
     });
 
     if (!response.ok) {
-      throw new Error('Failed to analyze performance');
+      throw new Error('Failed to analyze hole performance');
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data.analysis;
   } catch (error) {
-    console.error('Error analyzing hole-by-hole performance:', error);
-    return null;
+    console.error('Error analyzing hole performance:', error);
+    throw error;
   }
 } 
