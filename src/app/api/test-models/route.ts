@@ -6,36 +6,33 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 export async function GET() {
   try {
     console.log('Initializing Gemini model...');
-    const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     console.log('Model initialized:', model.model);
 
-    console.log('Generating content...');
+    const prompt = 'Generate a short test message to verify the API is working.';
+
+    console.log('Generating test content...');
     const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: "Hello" }] }]
+      contents: [{ role: "user", parts: [{ text: prompt }] }]
     });
     console.log('Content generated');
 
     const response = await result.response;
     const text = response.text();
-    console.log('Response received:', text);
-    
+    console.log('Raw response:', text);
+
     return NextResponse.json({ 
       success: true,
-      response: text,
-      modelInfo: model.model
+      message: text
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Detailed error:', {
-      message: error.message,
-      code: error.code,
-      details: error.details,
-      stack: error.stack
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
     });
     return NextResponse.json({ 
-      error: 'Failed to test model',
-      details: error.message,
-      code: error.code,
-      stack: error.stack
+      error: 'Failed to generate test content',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 } 

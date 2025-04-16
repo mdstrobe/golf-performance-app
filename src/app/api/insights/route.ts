@@ -3,33 +3,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-interface GolfRound {
-  course_name: string;
-  score: number;
-  fairways_hit: number;
-  greens_in_regulation: number;
-  putts: number;
-  round_date: string;
-  tee_position: string;
-  hole_by_hole_data?: Array<{
-    strokes: number;
-    putts: number;
-    fairway: string;
-    green: string;
-  }>;
-}
-
-interface GolfStats {
-  averageScore: number;
-  roundsPlayed: number;
-  fairwaysHitPercentage: number;
-  greensInRegulationPercentage: number;
-  averagePutts: number;
-  bestScore: number;
-  worstScore: number;
-  scoreTrend: number[];
-}
-
 interface Insight {
   title: string;
   description: string;
@@ -127,18 +100,14 @@ export async function POST(request: Request) {
         }]
       });
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Detailed error:', {
-      message: error.message,
-      code: error.code,
-      details: error.details,
-      stack: error.stack
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
     });
     return NextResponse.json({ 
       error: 'Failed to generate insights',
-      details: error.message,
-      code: error.code,
-      stack: error.stack
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 } 
