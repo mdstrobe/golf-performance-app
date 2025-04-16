@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import { generatePersona } from '@/lib/persona';
 import GolfBag from '@/components/GolfBag';
-import { analyzeHoleByHolePerformance } from '@/lib/openai';
+// import { analyzeHoleByHolePerformance } from '@/lib/insights';
 
 interface Round {
   id: string;
@@ -143,12 +143,6 @@ export default function DashboardPage() {
       const data = await response.json();
       setAiInsights(data.insights || null);
 
-      // If the most recent round has hole-by-hole data, analyze it
-      const latestRound = rounds[0];
-      if (latestRound?.hole_by_hole_data) {
-        const analysis = await analyzeHoleByHolePerformance(latestRound.hole_by_hole_data);
-        setHoleAnalysis(analysis);
-      }
     } catch (error) {
       console.error('Error fetching insights:', error);
       setAiInsights(null);

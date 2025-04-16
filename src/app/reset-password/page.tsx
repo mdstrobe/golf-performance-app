@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
           });
 
           if (error) throw error;
-        } catch (err: any) {
+        } catch {
           setError('Invalid or expired reset link. Please request a new one.');
           setTimeout(() => {
             router.push('/forgot-password');
@@ -77,8 +77,8 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.push('/login');
       }, 2000);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

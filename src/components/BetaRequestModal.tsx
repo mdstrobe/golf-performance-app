@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { PostgrestError } from '@supabase/supabase-js';
+// import { PostgrestError } from '@supabase/supabase-js';
 
 interface BetaRequestModalProps {
   isOpen: boolean;
