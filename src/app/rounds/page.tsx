@@ -18,6 +18,7 @@ const TEE_POSITIONS = [
 const SUBMISSION_TYPES = [
   { value: 'basic', label: 'Basic Round' },
   { value: 'hole-by-hole', label: 'Hole by Hole' },
+  { value: 'scorecard', label: 'Upload Scorecard' }
 ];
 
 export default function RoundsPage() {
@@ -473,8 +474,8 @@ export default function RoundsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+      <div className="mb-6">
+        <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-green-800">Log a Round</h1>
           <button
             onClick={() => router.push('/dashboard')}
@@ -483,27 +484,308 @@ export default function RoundsPage() {
             Back to Dashboard
           </button>
         </div>
+      </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Submission Type
-          </label>
-          <div className="flex space-x-4">
-            <select
-              value={submissionType}
-              onChange={(e) => setSubmissionType(e.target.value)}
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
-            >
-              {SUBMISSION_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Basic Round Card */}
+        <div 
+          className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer ${
+            submissionType === 'basic' ? 'ring-2 ring-green-500' : ''
+          }`}
+          onClick={() => setSubmissionType('basic')}
+        >
+          <h2 className="text-xl font-semibold text-green-800 mb-2">Basic Round</h2>
+          <p className="text-gray-600">Quick entry of your total score and key stats.</p>
         </div>
-        {submissionType === 'basic' && renderBasicForm()}
-        {submissionType === 'hole-by-hole' && renderHoleByHoleForm()}
+
+        {/* Hole by Hole Card */}
+        <div 
+          className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer ${
+            submissionType === 'hole-by-hole' ? 'ring-2 ring-green-500' : ''
+          }`}
+          onClick={() => setSubmissionType('hole-by-hole')}
+        >
+          <h2 className="text-xl font-semibold text-green-800 mb-2">Hole by Hole</h2>
+          <p className="text-gray-600">Detailed entry for each hole including strokes, putts, and accuracy.</p>
+        </div>
+
+        {/* Scorecard Upload Card */}
+        <div 
+          className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer ${
+            submissionType === 'scorecard' ? 'ring-2 ring-green-500' : ''
+          }`}
+          onClick={() => setSubmissionType('scorecard')}
+        >
+          <h2 className="text-xl font-semibold text-green-800 mb-2">Upload Scorecard</h2>
+          <p className="text-gray-600">Upload a photo of your scorecard for automatic processing.</p>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        {submissionType === 'basic' && (
+          <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-green-800 mb-4">Basic Round Details</h3>
+            {renderBasicForm()}
+          </div>
+        )}
+
+        {submissionType === 'hole-by-hole' && (
+          <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-green-800 mb-4">Hole by Hole Details</h3>
+            <div className="mb-6 space-y-4">
+              <div className="relative">
+                <label htmlFor="courseName" className="block text-sm font-medium text-gray-700">
+                  Course Name
+                </label>
+                <input
+                  type="text"
+                  id="courseName"
+                  value={courseName}
+                  onChange={(e) => {
+                    setCourseName(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                  placeholder="Start typing to search for courses..."
+                />
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                    {suggestions.map((course) => (
+                      <div
+                        key={course.id}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          setCourseName(course.name);
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        {course.name} - {course.city}, {course.state}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="roundDate" className="block text-sm font-medium text-gray-700">
+                    Round Date
+                  </label>
+                  <input
+                    type="date"
+                    id="roundDate"
+                    value={roundDate}
+                    onChange={(e) => setRoundDate(e.target.value)}
+                    className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="teePosition" className="block text-sm font-medium text-gray-700">
+                    Tee Position
+                  </label>
+                  <select
+                    id="teePosition"
+                    value={teePosition}
+                    onChange={(e) => setTeePosition(e.target.value)}
+                    className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  >
+                    {TEE_POSITIONS.map((position) => (
+                      <option key={position.value} value={position.value}>
+                        {position.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Front Nine */}
+            <div className="mb-8">
+              <h4 className="text-lg font-medium text-green-700 mb-4">Front Nine</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {holes.slice(0, 9).map((hole, index) => (
+                  <div key={index} className="border p-4 rounded-md bg-gray-50">
+                    <h5 className="font-medium mb-2">Hole {index + 1}</h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-sm text-gray-600">Strokes</label>
+                        <input
+                          type="number"
+                          value={hole.strokes}
+                          onChange={(e) => {
+                            const newHoles = [...holes];
+                            newHoles[index] = { ...newHoles[index], strokes: e.target.value };
+                            setHoles(newHoles);
+                          }}
+                          className="w-full p-2 border rounded-md"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600">Putts</label>
+                        <input
+                          type="number"
+                          value={hole.putts}
+                          onChange={(e) => {
+                            const newHoles = [...holes];
+                            newHoles[index] = { ...newHoles[index], putts: e.target.value };
+                            setHoles(newHoles);
+                          }}
+                          className="w-full p-2 border rounded-md"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600">Fairway</label>
+                        <select
+                          value={hole.fairway}
+                          onChange={(e) => {
+                            const newHoles = [...holes];
+                            newHoles[index] = { ...newHoles[index], fairway: e.target.value };
+                            setHoles(newHoles);
+                          }}
+                          className="w-full p-2 border rounded-md"
+                        >
+                          <option value="">Select</option>
+                          <option value="hit">Hit</option>
+                          <option value="miss">Miss</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600">Green</label>
+                        <select
+                          value={hole.green}
+                          onChange={(e) => {
+                            const newHoles = [...holes];
+                            newHoles[index] = { ...newHoles[index], green: e.target.value };
+                            setHoles(newHoles);
+                          }}
+                          className="w-full p-2 border rounded-md"
+                        >
+                          <option value="">Select</option>
+                          <option value="hit">Hit</option>
+                          <option value="miss">Miss</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Back Nine */}
+            <div>
+              <h4 className="text-lg font-medium text-green-700 mb-4">Back Nine</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {holes.slice(9, 18).map((hole, index) => (
+                  <div key={index + 9} className="border p-4 rounded-md bg-gray-50">
+                    <h5 className="font-medium mb-2">Hole {index + 10}</h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-sm text-gray-600">Strokes</label>
+                        <input
+                          type="number"
+                          value={hole.strokes}
+                          onChange={(e) => {
+                            const newHoles = [...holes];
+                            newHoles[index + 9] = { ...newHoles[index + 9], strokes: e.target.value };
+                            setHoles(newHoles);
+                          }}
+                          className="w-full p-2 border rounded-md"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600">Putts</label>
+                        <input
+                          type="number"
+                          value={hole.putts}
+                          onChange={(e) => {
+                            const newHoles = [...holes];
+                            newHoles[index + 9] = { ...newHoles[index + 9], putts: e.target.value };
+                            setHoles(newHoles);
+                          }}
+                          className="w-full p-2 border rounded-md"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600">Fairway</label>
+                        <select
+                          value={hole.fairway}
+                          onChange={(e) => {
+                            const newHoles = [...holes];
+                            newHoles[index + 9] = { ...newHoles[index + 9], fairway: e.target.value };
+                            setHoles(newHoles);
+                          }}
+                          className="w-full p-2 border rounded-md"
+                        >
+                          <option value="">Select</option>
+                          <option value="hit">Hit</option>
+                          <option value="miss">Miss</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600">Green</label>
+                        <select
+                          value={hole.green}
+                          onChange={(e) => {
+                            const newHoles = [...holes];
+                            newHoles[index + 9] = { ...newHoles[index + 9], green: e.target.value };
+                            setHoles(newHoles);
+                          }}
+                          className="w-full p-2 border rounded-md"
+                        >
+                          <option value="">Select</option>
+                          <option value="hit">Hit</option>
+                          <option value="miss">Miss</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <button
+                onClick={handleHoleByHoleSubmit}
+                disabled={loading}
+                className="w-full bg-green-600 text-white p-3 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Submitting...' : 'Submit Round'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {submissionType === 'scorecard' && (
+          <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-green-800 mb-4">Upload Scorecard</h3>
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <div className="space-y-2">
+                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <div className="text-sm text-gray-600">
+                    <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500">
+                      <span>Upload a file</span>
+                      <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+              <button
+                className="w-full bg-green-600 text-white p-3 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
+                disabled
+              >
+                Coming Soon
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -19,6 +19,30 @@ export default function GolfBagPage() {
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingClub, setEditingClub] = useState<Club | null>(null);
+  const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);
+  const [uniqueModels, setUniqueModels] = useState<{[brand: string]: string[]}>({}); // Models by brand
+  const [lastUsedBrand, setLastUsedBrand] = useState('');
+  const [lastUsedModel, setLastUsedModel] = useState('');
+  const [lastUsedLoft, setLastUsedLoft] = useState<number | null>(null);
+  
+  const CLUB_OPTIONS = [
+    'Driver',
+    '4 Iron',
+    '5 Iron',
+    '6 Iron',
+    '7 Iron',
+    '8 Iron',
+    '9 Iron',
+    'Pitching Wedge',
+    'Sand Wedge',
+    'Wedge',
+    'Putter'
+  ];
+
+  const DISTANCE_OPTIONS = [
+    300, 275, 250, 225, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 80
+  ];
+
   const [newClub, setNewClub] = useState({
     name: '',
     brand: '',
@@ -49,6 +73,29 @@ export default function GolfBagPage() {
 
       if (error) throw error;
       setClubs(data || []);
+      
+      // Extract unique brands and models
+      const brands = new Set<string>();
+      const modelsByBrand: {[brand: string]: Set<string>} = {};
+      
+      data?.forEach(club => {
+        if (club.brand) {
+          brands.add(club.brand);
+          if (!modelsByBrand[club.brand]) {
+            modelsByBrand[club.brand] = new Set<string>();
+          }
+          if (club.model) {
+            modelsByBrand[club.brand].add(club.model);
+          }
+        }
+      });
+      
+      setUniqueBrands(Array.from(brands));
+      const modelsByBrandArray: {[brand: string]: string[]} = {};
+      Object.keys(modelsByBrand).forEach(brand => {
+        modelsByBrandArray[brand] = Array.from(modelsByBrand[brand]);
+      });
+      setUniqueModels(modelsByBrandArray);
     } catch (error) {
       console.error('Error fetching clubs:', error);
     } finally {
@@ -62,24 +109,31 @@ export default function GolfBagPage() {
     if (!user) return;
 
     try {
+      const clubData = {
+        ...newClub,
+        user_id: user.id,
+        loft: newClub.name === 'Putter' ? null : parseFloat(newClub.loft),
+        typical_distance: newClub.name === 'Putter' ? null : parseFloat(newClub.typical_distance)
+      };
+
       const { error } = await supabase
         .from('clubs')
-        .insert({
-          ...newClub,
-          user_id: user.id,
-          loft: parseFloat(newClub.loft),
-          typical_distance: parseFloat(newClub.typical_distance)
-        });
+        .insert(clubData);
 
       if (error) throw error;
       
+      // Save last used values
+      setLastUsedBrand(newClub.brand);
+      setLastUsedModel(newClub.model);
+      setLastUsedLoft(newClub.name === 'Putter' ? null : parseFloat(newClub.loft));
+      
       // Refresh clubs list
       fetchClubs(user.id);
-      // Reset form
+      // Reset form but keep the brand and model
       setNewClub({
         name: '',
-        brand: '',
-        model: '',
+        brand: newClub.brand,
+        model: newClub.model,
         loft: '',
         typical_distance: ''
       });
@@ -132,6 +186,13 @@ export default function GolfBagPage() {
     }
   };
 
+  const handleLoftGap = (gap: number) => {
+    if (lastUsedLoft !== null) {
+      const newLoft = (lastUsedLoft + gap).toFixed(1);
+      setNewClub({ ...newClub, loft: newLoft });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -144,8 +205,29 @@ export default function GolfBagPage() {
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-green-800">My Golf Bag</h1>
-          <p className="text-gray-600 mt-2">Manage your clubs and track your distances</p>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-3xl font-bold text-green-800">My Golf Bag</h1>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="flex items-center space-x-2 text-green-600 hover:text-green-800 transition-colors"
+            >
+              <svg 
+                className="w-5 h-5" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth="2" 
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              <span>Back to Dashboard</span>
+            </button>
+          </div>
+          <p className="text-gray-600">Manage your clubs and track your distances</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -155,54 +237,151 @@ export default function GolfBagPage() {
             <form onSubmit={handleAddClub} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Club Name</label>
-                <input
-                  type="text"
+                <select
                   value={newClub.name}
                   onChange={(e) => setNewClub({ ...newClub, name: e.target.value })}
                   className="mt-1 p-2 w-full border rounded-md"
                   required
-                />
+                >
+                  <option value="">Select a club</option>
+                  {CLUB_OPTIONS.map((club) => (
+                    <option key={club} value={club}>
+                      {club}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Brand</label>
-                <input
-                  type="text"
-                  value={newClub.brand}
-                  onChange={(e) => setNewClub({ ...newClub, brand: e.target.value })}
-                  className="mt-1 p-2 w-full border rounded-md"
-                  required
-                />
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={newClub.brand}
+                    onChange={(e) => setNewClub({ ...newClub, brand: e.target.value })}
+                    className="mt-1 p-2 flex-1 border rounded-md"
+                    required
+                    placeholder="Enter brand name"
+                  />
+                  {uniqueBrands.length > 0 && (
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setNewClub({ ...newClub, brand: e.target.value });
+                        }
+                      }}
+                      className="mt-1 p-2 border rounded-md"
+                    >
+                      <option value="">Previous brands</option>
+                      {uniqueBrands.map((brand) => (
+                        <option key={brand} value={brand}>
+                          {brand}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Model</label>
-                <input
-                  type="text"
-                  value={newClub.model}
-                  onChange={(e) => setNewClub({ ...newClub, model: e.target.value })}
-                  className="mt-1 p-2 w-full border rounded-md"
-                  required
-                />
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={newClub.model}
+                    onChange={(e) => setNewClub({ ...newClub, model: e.target.value })}
+                    className="mt-1 p-2 flex-1 border rounded-md"
+                    required
+                    placeholder="Enter model name"
+                  />
+                  {uniqueModels[newClub.brand]?.length > 0 && (
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setNewClub({ ...newClub, model: e.target.value });
+                        }
+                      }}
+                      className="mt-1 p-2 border rounded-md"
+                    >
+                      <option value="">Previous models</option>
+                      {uniqueModels[newClub.brand].map((model) => (
+                        <option key={model} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Loft (degrees)</label>
-                <input
-                  type="number"
-                  value={newClub.loft}
-                  onChange={(e) => setNewClub({ ...newClub, loft: e.target.value })}
-                  className="mt-1 p-2 w-full border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Typical Distance (yards)</label>
-                <input
-                  type="number"
-                  value={newClub.typical_distance}
-                  onChange={(e) => setNewClub({ ...newClub, typical_distance: e.target.value })}
-                  className="mt-1 p-2 w-full border rounded-md"
-                  required
-                />
-              </div>
+              {/* Only show loft and typical distance for non-putters */}
+              {newClub.name !== 'Putter' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Loft (degrees)</label>
+                    <div className="space-y-2">
+                      <input
+                        type="number"
+                        value={newClub.loft}
+                        onChange={(e) => setNewClub({ ...newClub, loft: e.target.value })}
+                        className="mt-1 p-2 w-full border rounded-md"
+                        required
+                        step="0.1"
+                      />
+                      {lastUsedLoft !== null && (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-500">Last loft: {lastUsedLoft}°</span>
+                          <div className="flex space-x-2">
+                            <button
+                              type="button"
+                              onClick={() => handleLoftGap(-4)}
+                              className="px-2 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
+                            >
+                              -4°
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleLoftGap(-3)}
+                              className="px-2 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
+                            >
+                              -3°
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleLoftGap(3)}
+                              className="px-2 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
+                            >
+                              +3°
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleLoftGap(4)}
+                              className="px-2 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
+                            >
+                              +4°
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Typical Distance (yards)</label>
+                    <select
+                      value={newClub.typical_distance}
+                      onChange={(e) => setNewClub({ ...newClub, typical_distance: e.target.value })}
+                      className="mt-1 p-2 w-full border rounded-md"
+                      required
+                    >
+                      <option value="">Select typical distance</option>
+                      {DISTANCE_OPTIONS.map((distance) => (
+                        <option key={distance} value={distance}>
+                          {distance} yards
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
               <button
                 type="submit"
                 className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition-colors"
@@ -222,13 +401,19 @@ export default function GolfBagPage() {
                     {editingClub?.id === club.id ? (
                       <form onSubmit={handleUpdateClub} className="space-y-2">
                         <div className="grid grid-cols-2 gap-2">
-                          <input
-                            type="text"
+                          <select
                             value={editingClub.name}
                             onChange={(e) => setEditingClub({ ...editingClub, name: e.target.value })}
                             className="p-2 border rounded-md"
                             required
-                          />
+                          >
+                            <option value="">Select a club</option>
+                            {CLUB_OPTIONS.map((club) => (
+                              <option key={club} value={club}>
+                                {club}
+                              </option>
+                            ))}
+                          </select>
                           <input
                             type="text"
                             value={editingClub.brand}
@@ -243,20 +428,31 @@ export default function GolfBagPage() {
                             className="p-2 border rounded-md"
                             required
                           />
-                          <input
-                            type="number"
-                            value={editingClub.loft}
-                            onChange={(e) => setEditingClub({ ...editingClub, loft: parseFloat(e.target.value) })}
-                            className="p-2 border rounded-md"
-                            required
-                          />
-                          <input
-                            type="number"
-                            value={editingClub.typical_distance}
-                            onChange={(e) => setEditingClub({ ...editingClub, typical_distance: parseFloat(e.target.value) })}
-                            className="p-2 border rounded-md"
-                            required
-                          />
+                          {editingClub.name !== 'Putter' && (
+                            <>
+                              <input
+                                type="number"
+                                value={editingClub.loft}
+                                onChange={(e) => setEditingClub({ ...editingClub, loft: parseFloat(e.target.value) })}
+                                className="p-2 border rounded-md"
+                                required
+                                step="0.1"
+                              />
+                              <select
+                                value={editingClub.typical_distance}
+                                onChange={(e) => setEditingClub({ ...editingClub, typical_distance: parseFloat(e.target.value) })}
+                                className="p-2 border rounded-md"
+                                required
+                              >
+                                <option value="">Select typical distance</option>
+                                {DISTANCE_OPTIONS.map((distance) => (
+                                  <option key={distance} value={distance}>
+                                    {distance} yards
+                                  </option>
+                                ))}
+                              </select>
+                            </>
+                          )}
                         </div>
                         <div className="flex space-x-2">
                           <button
