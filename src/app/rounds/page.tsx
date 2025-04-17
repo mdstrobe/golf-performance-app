@@ -487,38 +487,22 @@ export default function RoundsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Basic Round Card */}
-        <div 
-          className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer ${
-            submissionType === 'basic' ? 'ring-2 ring-green-500' : ''
-          }`}
-          onClick={() => setSubmissionType('basic')}
-        >
-          <h2 className="text-xl font-semibold text-green-800 mb-2">Basic Round</h2>
-          <p className="text-gray-600">Quick entry of your total score and key stats.</p>
-        </div>
-
-        {/* Hole by Hole Card */}
-        <div 
-          className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer ${
-            submissionType === 'hole-by-hole' ? 'ring-2 ring-green-500' : ''
-          }`}
-          onClick={() => setSubmissionType('hole-by-hole')}
-        >
-          <h2 className="text-xl font-semibold text-green-800 mb-2">Hole by Hole</h2>
-          <p className="text-gray-600">Detailed entry for each hole including strokes, putts, and accuracy.</p>
-        </div>
-
-        {/* Scorecard Upload Card */}
-        <div 
-          className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer ${
-            submissionType === 'scorecard' ? 'ring-2 ring-green-500' : ''
-          }`}
-          onClick={() => setSubmissionType('scorecard')}
-        >
-          <h2 className="text-xl font-semibold text-green-800 mb-2">Upload Scorecard</h2>
-          <p className="text-gray-600">Upload a photo of your scorecard for automatic processing.</p>
-        </div>
+        {SUBMISSION_TYPES.map((type) => (
+          <div 
+            key={type.value}
+            className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer ${
+              submissionType === type.value ? 'ring-2 ring-green-500' : ''
+            }`}
+            onClick={() => setSubmissionType(type.value)}
+          >
+            <h2 className="text-xl font-semibold text-green-800 mb-2">{type.label}</h2>
+            <p className="text-gray-600">
+              {type.value === 'basic' && 'Quick entry of your total score and key stats.'}
+              {type.value === 'hole-by-hole' && 'Detailed entry for each hole including strokes, putts, and accuracy.'}
+              {type.value === 'scorecard' && 'Upload a photo of your scorecard for automatic processing.'}
+            </p>
+          </div>
+        ))}
       </div>
 
       <div className="mt-8">
@@ -532,229 +516,7 @@ export default function RoundsPage() {
         {submissionType === 'hole-by-hole' && (
           <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold text-green-800 mb-4">Hole by Hole Details</h3>
-            <div className="mb-6 space-y-4">
-              <div className="relative">
-                <label htmlFor="courseName" className="block text-sm font-medium text-gray-700">
-                  Course Name
-                </label>
-                <input
-                  type="text"
-                  id="courseName"
-                  value={courseName}
-                  onChange={(e) => {
-                    setCourseName(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => setShowSuggestions(true)}
-                  className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                  placeholder="Start typing to search for courses..."
-                />
-                {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                    {suggestions.map((course) => (
-                      <div
-                        key={course.id}
-                        className="p-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => {
-                          setCourseName(course.name);
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        {course.name} - {course.city}, {course.state}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="roundDate" className="block text-sm font-medium text-gray-700">
-                    Round Date
-                  </label>
-                  <input
-                    type="date"
-                    id="roundDate"
-                    value={roundDate}
-                    onChange={(e) => setRoundDate(e.target.value)}
-                    className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="teePosition" className="block text-sm font-medium text-gray-700">
-                    Tee Position
-                  </label>
-                  <select
-                    id="teePosition"
-                    value={teePosition}
-                    onChange={(e) => setTeePosition(e.target.value)}
-                    className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  >
-                    {TEE_POSITIONS.map((position) => (
-                      <option key={position.value} value={position.value}>
-                        {position.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Front Nine */}
-            <div className="mb-8">
-              <h4 className="text-lg font-medium text-green-700 mb-4">Front Nine</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {holes.slice(0, 9).map((hole, index) => (
-                  <div key={index} className="border p-4 rounded-md bg-gray-50">
-                    <h5 className="font-medium mb-2">Hole {index + 1}</h5>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-sm text-gray-600">Strokes</label>
-                        <input
-                          type="number"
-                          value={hole.strokes}
-                          onChange={(e) => {
-                            const newHoles = [...holes];
-                            newHoles[index] = { ...newHoles[index], strokes: e.target.value };
-                            setHoles(newHoles);
-                          }}
-                          className="w-full p-2 border rounded-md"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-600">Putts</label>
-                        <input
-                          type="number"
-                          value={hole.putts}
-                          onChange={(e) => {
-                            const newHoles = [...holes];
-                            newHoles[index] = { ...newHoles[index], putts: e.target.value };
-                            setHoles(newHoles);
-                          }}
-                          className="w-full p-2 border rounded-md"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-600">Fairway</label>
-                        <select
-                          value={hole.fairway}
-                          onChange={(e) => {
-                            const newHoles = [...holes];
-                            newHoles[index] = { ...newHoles[index], fairway: e.target.value };
-                            setHoles(newHoles);
-                          }}
-                          className="w-full p-2 border rounded-md"
-                        >
-                          <option value="">Select</option>
-                          <option value="hit">Hit</option>
-                          <option value="miss">Miss</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-600">Green</label>
-                        <select
-                          value={hole.green}
-                          onChange={(e) => {
-                            const newHoles = [...holes];
-                            newHoles[index] = { ...newHoles[index], green: e.target.value };
-                            setHoles(newHoles);
-                          }}
-                          className="w-full p-2 border rounded-md"
-                        >
-                          <option value="">Select</option>
-                          <option value="hit">Hit</option>
-                          <option value="miss">Miss</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Back Nine */}
-            <div>
-              <h4 className="text-lg font-medium text-green-700 mb-4">Back Nine</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {holes.slice(9, 18).map((hole, index) => (
-                  <div key={index + 9} className="border p-4 rounded-md bg-gray-50">
-                    <h5 className="font-medium mb-2">Hole {index + 10}</h5>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-sm text-gray-600">Strokes</label>
-                        <input
-                          type="number"
-                          value={hole.strokes}
-                          onChange={(e) => {
-                            const newHoles = [...holes];
-                            newHoles[index + 9] = { ...newHoles[index + 9], strokes: e.target.value };
-                            setHoles(newHoles);
-                          }}
-                          className="w-full p-2 border rounded-md"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-600">Putts</label>
-                        <input
-                          type="number"
-                          value={hole.putts}
-                          onChange={(e) => {
-                            const newHoles = [...holes];
-                            newHoles[index + 9] = { ...newHoles[index + 9], putts: e.target.value };
-                            setHoles(newHoles);
-                          }}
-                          className="w-full p-2 border rounded-md"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-600">Fairway</label>
-                        <select
-                          value={hole.fairway}
-                          onChange={(e) => {
-                            const newHoles = [...holes];
-                            newHoles[index + 9] = { ...newHoles[index + 9], fairway: e.target.value };
-                            setHoles(newHoles);
-                          }}
-                          className="w-full p-2 border rounded-md"
-                        >
-                          <option value="">Select</option>
-                          <option value="hit">Hit</option>
-                          <option value="miss">Miss</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-600">Green</label>
-                        <select
-                          value={hole.green}
-                          onChange={(e) => {
-                            const newHoles = [...holes];
-                            newHoles[index + 9] = { ...newHoles[index + 9], green: e.target.value };
-                            setHoles(newHoles);
-                          }}
-                          className="w-full p-2 border rounded-md"
-                        >
-                          <option value="">Select</option>
-                          <option value="hit">Hit</option>
-                          <option value="miss">Miss</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <button
-                onClick={handleHoleByHoleSubmit}
-                disabled={loading}
-                className="w-full bg-green-600 text-white p-3 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Submitting...' : 'Submit Round'}
-              </button>
-            </div>
+            {renderHoleByHoleForm()}
           </div>
         )}
 

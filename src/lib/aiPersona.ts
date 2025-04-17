@@ -8,7 +8,6 @@ interface PerformanceMetrics {
   avgGreensInRegulation: number;
   avgPutts: number;
   scramblingPercentage: number;
-  puttingEfficiency: number;
   recentTrends?: {
     scoreTrend: 'improving' | 'stable' | 'declining';
     fairwayTrend: 'improving' | 'stable' | 'declining';
@@ -32,42 +31,26 @@ interface GolferPersona {
 export async function generateAIPersona(metrics: PerformanceMetrics, userId: string): Promise<GolferPersona> {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
 
-  const prompt = `
-    Analyze the following golf performance metrics and generate a detailed golfer persona:
-    
-    Performance Metrics:
-    - Average Score: ${metrics.avgScore}
-    - Fairways Hit: ${metrics.avgFairwaysHit}%
-    - Greens in Regulation: ${metrics.avgGreensInRegulation}%
-    - Average Putts: ${metrics.avgPutts}
-    - Scrambling Percentage: ${metrics.scramblingPercentage}%
-    - Putting Efficiency: ${metrics.puttingEfficiency}
-    ${metrics.recentTrends ? `
-    Recent Trends:
-    - Score: ${metrics.recentTrends.scoreTrend}
-    - Fairways: ${metrics.recentTrends.fairwayTrend}
-    - Greens: ${metrics.recentTrends.greenTrend}
-    - Putting: ${metrics.recentTrends.puttingTrend}
-    ` : ''}
+  const prompt = `Based on the following golf performance metrics, create a detailed golfer persona:
+- Average Score: ${metrics.avgScore.toFixed(1)}
+- Fairways Hit: ${(metrics.avgFairwaysHit * 100).toFixed(1)}%
+- Greens in Regulation: ${(metrics.avgGreensInRegulation * 100).toFixed(1)}%
+- Average Putts per Round: ${metrics.avgPutts.toFixed(1)}
+- Scrambling Success Rate: ${metrics.scramblingPercentage.toFixed(1)}%
 
-    Generate a detailed golfer persona in JSON format with the following structure:
-    {
-      "persona_name": "Creative name based on their playing style",
-      "strengths": ["3 specific strengths based on their metrics"],
-      "weaknesses": ["3 specific weaknesses based on their metrics"],
-      "recommendations": ["3 specific recommendations for improvement"],
-      "playStyle": "Description of their playing style and approach to the game",
-      "mentalGame": "Analysis of their mental approach and potential areas for improvement",
-      "practiceFocus": ["3 specific areas to focus on in practice"]
-    }
+Recent Trends:
+- Scoring: ${metrics.recentTrends?.scoreTrend || 'not enough data'}
+- Fairways: ${metrics.recentTrends?.fairwayTrend || 'not enough data'}
+- Greens: ${metrics.recentTrends?.greenTrend || 'not enough data'}
+- Putting: ${metrics.recentTrends?.puttingTrend || 'not enough data'}
 
-    The persona should be:
-    1. Based on their actual performance metrics
-    2. Include specific, actionable insights
-    3. Consider their recent trends if available
-    4. Be encouraging while highlighting areas for improvement
-    5. Use golf-specific terminology
-  `;
+Please provide:
+1. A descriptive name for this golfer's play style
+2. 3 key strengths
+3. 3 areas for improvement
+4. 2-3 specific practice recommendations
+5. A mental game observation
+6. A one-sentence summary of their overall game`;
 
   try {
     const result = await model.generateContent(prompt);

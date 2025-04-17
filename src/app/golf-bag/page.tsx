@@ -45,11 +45,20 @@ export default function GolfBagPage() {
 
   const [newClub, setNewClub] = useState({
     name: '',
-    brand: '',
-    model: '',
+    brand: lastUsedBrand,
+    model: lastUsedModel,
     loft: '',
     typical_distance: ''
   });
+
+  useEffect(() => {
+    // Update newClub when lastUsedBrand or lastUsedModel changes
+    setNewClub(prev => ({
+      ...prev,
+      brand: lastUsedBrand,
+      model: lastUsedModel
+    }));
+  }, [lastUsedBrand, lastUsedModel]);
 
   useEffect(() => {
     const checkAuth = async () => {

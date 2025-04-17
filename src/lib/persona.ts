@@ -20,7 +20,6 @@ interface PerformanceMetrics {
   avgGreensInRegulation: number;
   avgPutts: number;
   scramblingPercentage: number;
-  puttingEfficiency: number;
   recentTrends?: {
     scoreTrend: 'improving' | 'stable' | 'declining';
     fairwayTrend: 'improving' | 'stable' | 'declining';
@@ -39,31 +38,32 @@ interface GolferPersona {
   created_at?: string;
 }
 
-function calculatePerformanceMetrics(rounds: Round[]): PerformanceMetrics {
+export function calculatePerformanceMetrics(rounds: Round[]): PerformanceMetrics {
+  if (!rounds.length) {
+    return {
+      avgScore: 0,
+      avgFairwaysHit: 0,
+      avgGreensInRegulation: 0,
+      avgPutts: 0,
+      scramblingPercentage: 0
+    };
+  }
+
   const totalRounds = rounds.length;
-  let totalFairways = 0;
-  let totalGreens = 0;
-  let totalPutts = 0;
-  let totalScrambles = 0;
-  let totalScrambleAttempts = 0;
-
-  // Calculate basic metrics
-  rounds.forEach(round => {
-    totalFairways += round.fairways_hit || 0;
-    totalGreens += round.greens_in_regulation || 0;
-    totalPutts += round.putts || 0;
-
-    if (round.hole_by_hole_data) {
-      round.hole_by_hole_data.forEach(hole => {
-        if (hole.green === 'miss') {
-          totalScrambleAttempts++;
-          if (hole.strokes <= 2) {
-            totalScrambles++;
-          }
-        }
-      });
-    }
-  });
+  const totalScore = rounds.reduce((sum, round) => sum + (round.score || 0), 0);
+  const totalFairways = rounds.reduce((sum, round) => sum + (round.fairways_hit ?? 0), 0);
+  const totalGreens = rounds.reduce((sum, round) => sum + (round.greens_in_regulation ?? 0), 0);
+  const totalPutts = rounds.reduce((sum, round) => sum + (round.putts ?? 0), 0);
+  
+  const totalScramblingAttempts = rounds.reduce((sum, round) => {
+    if (!round.hole_by_hole_data) return sum;
+    return sum + round.hole_by_hole_data.filter(hole => hole.green === 'miss').length;
+  }, 0);
+  
+  const totalScramblingSuccesses = rounds.reduce((sum, round) => {
+    if (!round.hole_by_hole_data) return sum;
+    return sum + round.hole_by_hole_data.filter(hole => hole.green === 'miss' && hole.strokes <= 2).length;
+  }, 0);
 
   // Calculate trends
   const recentRounds = rounds.slice(0, 5);
@@ -80,8 +80,8 @@ function calculatePerformanceMetrics(rounds: Round[]): PerformanceMetrics {
 
   const trends = {
     scoreTrend: calculateTrend(
-      recentRounds.map(r => r.score),
-      olderRounds.map(r => r.score)
+      recentRounds.map(r => r.score || 0),
+      olderRounds.map(r => r.score || 0)
     ),
     fairwayTrend: calculateTrend(
       recentRounds.map(r => r.fairways_hit || 0),
@@ -98,81 +98,15 @@ function calculatePerformanceMetrics(rounds: Round[]): PerformanceMetrics {
   };
 
   return {
-    avgScore: rounds.reduce((acc, round) => acc + round.score, 0) / totalRounds,
+    avgScore: totalScore / totalRounds,
     avgFairwaysHit: totalFairways / totalRounds,
     avgGreensInRegulation: totalGreens / totalRounds,
     avgPutts: totalPutts / totalRounds,
-    scramblingPercentage: totalScrambleAttempts > 0 ? (totalScrambles / totalScrambleAttempts) * 100 : 0,
-    puttingEfficiency: totalPutts / totalRounds,
+    scramblingPercentage: totalScramblingAttempts > 0 
+      ? (totalScramblingSuccesses / totalScramblingAttempts) * 100 
+      : 0,
     recentTrends: trends
   };
-}
-
-function determinePersonaType(metrics: PerformanceMetrics, userId: string): GolferPersona {
-  const { avgScore, avgFairwaysHit, avgGreensInRegulation, avgPutts, scramblingPercentage, puttingEfficiency } = metrics;
-  
-  // Define persona types based on performance metrics
-  if (avgScore < 80 && avgGreensInRegulation > 12 && avgPutts < 30) {
-    return {
-      user_id: userId,
-      persona_name: 'Elite Ball Striker',
-      strengths: ['Exceptional ball striking', 'Strong iron play', 'Consistent tee shots'],
-      weaknesses: ['Occasional putting lapses', 'Course management'],
-      recommendations: [
-        'Focus on short game practice',
-        'Work on course strategy',
-        'Consider professional tournament play'
-      ]
-    };
-  } else if (avgScore < 85 && scramblingPercentage > 60) {
-    return {
-      user_id: userId,
-      persona_name: 'Scrambler',
-      strengths: ['Excellent short game', 'Strong mental game', 'Good recovery shots'],
-      weaknesses: ['Inconsistent ball striking', 'Tee shot accuracy'],
-      recommendations: [
-        'Practice driving accuracy',
-        'Work on approach shots',
-        'Maintain short game focus'
-      ]
-    };
-  } else if (avgScore < 90 && avgPutts < 32) {
-    return {
-      user_id: userId,
-      persona_name: 'Putting Specialist',
-      strengths: ['Excellent putting', 'Good course management', 'Consistent short game'],
-      weaknesses: ['Ball striking consistency', 'Distance control'],
-      recommendations: [
-        'Focus on ball striking drills',
-        'Work on distance control',
-        'Maintain putting practice'
-      ]
-    };
-  } else if (avgScore < 95) {
-    return {
-      user_id: userId,
-      persona_name: 'Developing Player',
-      strengths: ['Improving consistency', 'Good course management', 'Strong fundamentals'],
-      weaknesses: ['Overall consistency', 'Short game', 'Putting'],
-      recommendations: [
-        'Focus on short game practice',
-        'Work on putting consistency',
-        'Develop pre-shot routine'
-      ]
-    };
-  } else {
-    return {
-      user_id: userId,
-      persona_name: 'Improving Beginner',
-      strengths: ['Enthusiasm for improvement', 'Basic fundamentals', 'Willingness to learn'],
-      weaknesses: ['Consistency', 'Short game', 'Course management'],
-      recommendations: [
-        'Focus on fundamentals',
-        'Take lessons with a pro',
-        'Practice short game regularly'
-      ]
-    };
-  }
 }
 
 export async function generatePersona(userId: string, supabase: SupabaseClient) {
