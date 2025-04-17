@@ -28,16 +28,6 @@ interface PerformanceMetrics {
   };
 }
 
-interface GolferPersona {
-  id?: string;
-  user_id: string;
-  persona_name: string;
-  strengths: string[];
-  weaknesses: string[];
-  recommendations: string[];
-  created_at?: string;
-}
-
 export function calculatePerformanceMetrics(rounds: Round[]): PerformanceMetrics {
   if (!rounds.length) {
     return {
