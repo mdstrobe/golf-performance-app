@@ -43,15 +43,6 @@ interface Insight {
   priority: 'high' | 'medium' | 'low';
 }
 
-interface HoleAnalysis {
-  analysis: {
-    scoringPatterns: string[];
-    strengths: string[];
-    weaknesses: string[];
-    recommendations: string[];
-  };
-}
-
 interface Persona {
   persona_name: string;
   description: string;
@@ -78,7 +69,6 @@ export default function DashboardPage() {
   });
   const [persona, setPersona] = useState<Persona | null>(null);
   const [aiInsights, setAiInsights] = useState<Insight[] | null>(null);
-  // const [holeAnalysis, setHoleAnalysis] = useState<HoleAnalysis | null>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [expandedInsights, setExpandedInsights] = useState<ExpandedInsights>({});
   const [editingRound, setEditingRound] = useState<Round | null>(null);
