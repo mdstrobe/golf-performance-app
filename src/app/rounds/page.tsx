@@ -472,24 +472,35 @@ export default function RoundsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl font-bold mb-6">Record a Round</h1>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-green-800">Log a Round</h1>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Submission Type
           </label>
-          <select
-            value={submissionType}
-            onChange={(e) => setSubmissionType(e.target.value)}
-            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            {SUBMISSION_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
+          <div className="flex space-x-4">
+            <select
+              value={submissionType}
+              onChange={(e) => setSubmissionType(e.target.value)}
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {SUBMISSION_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         {submissionType === 'basic' && renderBasicForm()}
         {submissionType === 'hole-by-hole' && renderHoleByHoleForm()}
