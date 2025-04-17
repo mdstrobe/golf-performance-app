@@ -120,7 +120,7 @@ export default function DashboardPage() {
     }
   };
 
-  const fetchInsights = async (rounds: Round[], stats: Stats) => {
+  const fetchInsights = async (rounds: Round[]) => {
     setLoadingInsights(true);
     try {
       const response = await fetch('/api/insights', {
@@ -178,12 +178,18 @@ export default function DashboardPage() {
         };
         
         setStats(newStats);
-        // Fetch AI insights after stats are updated
-        fetchInsights(rounds, newStats);
       }
     } catch (error) {
       console.error('Error fetching rounds:', error);
     }
+  };
+
+  const handleGenerateInsights = async () => {
+    if (recentRounds.length < 2) {
+      alert('You need at least 2 rounds to generate insights');
+      return;
+    }
+    await fetchInsights(recentRounds);
   };
 
   const toggleInsight = (index: number) => {
@@ -395,7 +401,18 @@ export default function DashboardPage() {
 
           {/* Insights Card */}
           <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow md:col-span-2 lg:col-span-3">
-            <h2 className="text-xl font-semibold text-green-800 mb-4">AI-Powered Insights</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-green-800">AI-Powered Insights</h2>
+              {recentRounds.length >= 2 && !aiInsights && (
+                <button
+                  onClick={handleGenerateInsights}
+                  disabled={loadingInsights}
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
+                >
+                  {loadingInsights ? 'Generating...' : 'Generate Insights'}
+                </button>
+              )}
+            </div>
             <div className="space-y-4">
               {loadingInsights ? (
                 <div className="flex justify-center items-center py-8">
@@ -461,7 +478,11 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No insights available yet. Submit more rounds to get personalized recommendations.</p>
+                <p className="text-gray-500 text-center py-8">
+                  {recentRounds.length >= 2 
+                    ? "You have enough rounds to analyze! Click 'Generate Insights' to get personalized recommendations."
+                    : "No insights available yet. Submit more rounds to get personalized insights and recommendations."}
+                </p>
               )}
             </div>
           </div>
