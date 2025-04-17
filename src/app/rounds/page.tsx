@@ -198,7 +198,7 @@ export default function RoundsPage() {
             setShowSuggestions(true);
           }}
           onFocus={() => setShowSuggestions(true)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
           required
           placeholder="Start typing to search for courses..."
         />
@@ -228,7 +228,7 @@ export default function RoundsPage() {
           id="score"
           value={score}
           onChange={(e) => setScore(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
           required
         />
       </div>
@@ -241,7 +241,7 @@ export default function RoundsPage() {
           id="fairwaysHit"
           value={fairwaysHit}
           onChange={(e) => setFairwaysHit(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
         />
       </div>
       <div>
@@ -253,7 +253,7 @@ export default function RoundsPage() {
           id="greensInRegulation"
           value={greensInRegulation}
           onChange={(e) => setGreensInRegulation(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
         />
       </div>
       <div>
@@ -265,7 +265,7 @@ export default function RoundsPage() {
           id="putts"
           value={putts}
           onChange={(e) => setPutts(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
         />
       </div>
       <div>
@@ -277,7 +277,7 @@ export default function RoundsPage() {
           id="roundDate"
           value={roundDate}
           onChange={(e) => setRoundDate(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
           required
         />
       </div>
@@ -289,7 +289,7 @@ export default function RoundsPage() {
           id="teePosition"
           value={teePosition}
           onChange={(e) => setTeePosition(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
           required
         >
           {TEE_POSITIONS.map((position) => (
@@ -326,7 +326,7 @@ export default function RoundsPage() {
             setShowSuggestions(true);
           }}
           onFocus={() => setShowSuggestions(true)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
           required
           placeholder="Start typing to search for courses..."
         />
@@ -356,7 +356,7 @@ export default function RoundsPage() {
           id="roundDate"
           value={roundDate}
           onChange={(e) => setRoundDate(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
           required
         />
       </div>
@@ -368,7 +368,7 @@ export default function RoundsPage() {
           id="teePosition"
           value={teePosition}
           onChange={(e) => setTeePosition(e.target.value)}
-          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
           required
         >
           {TEE_POSITIONS.map((position) => (
@@ -393,7 +393,7 @@ export default function RoundsPage() {
                     newHoles[index] = { ...newHoles[index], strokes: e.target.value };
                     setHoles(newHoles);
                   }}
-                  className="w-full p-2 border rounded-md"
+                  className="w-full p-2 border rounded-md text-gray-900 placeholder-gray-500"
                 />
               </div>
               <div>
@@ -406,7 +406,7 @@ export default function RoundsPage() {
                     newHoles[index] = { ...newHoles[index], putts: e.target.value };
                     setHoles(newHoles);
                   }}
-                  className="w-full p-2 border rounded-md"
+                  className="w-full p-2 border rounded-md text-gray-900 placeholder-gray-500"
                 />
               </div>
               <div>
@@ -418,7 +418,7 @@ export default function RoundsPage() {
                     newHoles[index] = { ...newHoles[index], fairway: e.target.value };
                     setHoles(newHoles);
                   }}
-                  className="w-full p-2 border rounded-md"
+                  className="w-full p-2 border rounded-md text-gray-900 placeholder-gray-500"
                 >
                   <option value="">Select</option>
                   <option value="hit">Hit</option>
@@ -434,7 +434,7 @@ export default function RoundsPage() {
                     newHoles[index] = { ...newHoles[index], green: e.target.value };
                     setHoles(newHoles);
                   }}
-                  className="w-full p-2 border rounded-md"
+                  className="w-full p-2 border rounded-md text-gray-900 placeholder-gray-500"
                 >
                   <option value="">Select</option>
                   <option value="hit">Hit</option>
@@ -451,7 +451,7 @@ export default function RoundsPage() {
                     newHoles[index] = { ...newHoles[index], notes: e.target.value };
                     setHoles(newHoles);
                   }}
-                  className="w-full p-2 border rounded-md"
+                  className="w-full p-2 border rounded-md text-gray-900 placeholder-gray-500"
                   placeholder="Optional notes..."
                 />
               </div>
@@ -492,7 +492,7 @@ export default function RoundsPage() {
             <select
               value={submissionType}
               onChange={(e) => setSubmissionType(e.target.value)}
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 placeholder-gray-500"
             >
               {SUBMISSION_TYPES.map((type) => (
                 <option key={type.value} value={type.value}>
